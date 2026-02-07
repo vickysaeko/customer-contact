@@ -121,6 +121,17 @@ def initialize_agent_executor():
     st.session_state.company_doc_chain = utils.create_rag_chain(ct.DB_COMPANY_PATH)
     st.session_state.rag_chain = utils.create_rag_chain(ct.DB_ALL_PATH)
 
+    faq_folder_path = ct.DB_NAMES.get(ct.DB_FAQ_PATH)
+    if faq_folder_path and os.path.isdir(faq_folder_path):
+        st.session_state.faq_doc_chain = utils.create_rag_chain(ct.DB_FAQ_PATH)
+        faq_tool = Tool(
+            name=ct.SEARCH_FAQ_INFO_TOOL_NAME,
+            func=utils.run_faq_doc_chain,
+            description=ct.SEARCH_FAQ_INFO_TOOL_DESCRIPTION
+        )
+    else:
+        faq_tool = None
+
     # Web検索用のToolを設定するためのオブジェクトを用意
     search = SerpAPIWrapper()
     # Agent Executorに渡すTool一覧を用意
@@ -150,6 +161,9 @@ def initialize_agent_executor():
             description=ct.SEARCH_WEB_INFO_TOOL_DESCRIPTION
         )
     ]
+
+    if faq_tool is not None:
+        tools.append(faq_tool)
 
     # Agent Executorの作成
     st.session_state.agent_executor = initialize_agent(

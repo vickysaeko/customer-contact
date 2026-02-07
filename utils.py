@@ -208,6 +208,23 @@ def run_customer_doc_chain(param):
     return ai_msg["answer"]
 
 
+def run_faq_doc_chain(param):
+    """
+    FAQに関するデータ参照に特化したTool設定用の関数
+
+    Args:
+        param: ユーザー入力値
+
+    Returns:
+        LLMからの回答
+    """
+    ai_msg = st.session_state.faq_doc_chain.invoke({"input": param, "chat_history": st.session_state.chat_history})
+
+    st.session_state.chat_history.extend([HumanMessage(content=param), AIMessage(content=ai_msg["answer"])])
+
+    return ai_msg["answer"]
+
+
 def delete_old_conversation_log(result):
     """
     古い会話履歴の削除
